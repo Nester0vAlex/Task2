@@ -100,7 +100,7 @@ public class Engine
             SafeExit(ex.Message, isError: true);
         }
     }
-    public void WaitForNextSynchronization() //(не)работающее закрытие кнопкой
+    public void WaitForNextSynchronization()
     {
         Task taskForCancelling = Task.Factory.StartNew(() =>
         {
