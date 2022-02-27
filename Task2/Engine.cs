@@ -12,11 +12,11 @@ public enum ValidationStatus : byte
 public class Engine
 {
     private readonly ILogger logger;
-    public StreamWriter _StreamWriter { get; private set; }
-    public string OriginalDirectoryPath { get; private set; }
-    public string CopiedDirectoryPath { get; private set; }
-    public string LogPath { get; private set; }
-    public int Interval { get; private set; }
+    private StreamWriter StreamWriter { get; set; }
+    private string OriginalDirectoryPath { get; set; }
+    private string CopiedDirectoryPath { get; set; }
+    private string LogPath { get; set; }
+    private int Interval { get; set; }
 
     public Engine(ILogger logger)
     {
@@ -26,14 +26,14 @@ public class Engine
     {
         SynchronizeDirectories(OriginalDirectoryPath, CopiedDirectoryPath);
 
-        logger.Log(Constants.OperationFinished, CopiedDirectoryPath, isError: false, _StreamWriter);
+        logger.Log(Constants.OperationFinished, isError: false, StreamWriter, CopiedDirectoryPath);
     }
     void SynchronizeDirectories(string origDir, string copiedDir)
     {
         if (!Directory.Exists(copiedDir))
         {
             Directory.CreateDirectory(copiedDir);
-            logger.Log(Constants.DirectoryCreated, Path.GetFileName(copiedDir), isError: false, _StreamWriter);
+            logger.Log(Constants.DirectoryCreated, isError: false, StreamWriter, Path.GetFileName(copiedDir));
         }
         foreach (string file in Directory.GetFiles(origDir))
         {
@@ -47,8 +47,8 @@ public class Engine
             if (!File.Exists(copiedDir + "\\" + fileName) || originalFileTimeChanged != copiedFileTimeChanged)
             {
                 string fileToReplace = copiedDir + "\\" + fileName;
-                tryOperation(file, fileToReplace, "CopyFile");
-                logger.Log(Constants.FileCopied, fileName, isError: false, _StreamWriter);
+                TryOperation(file, Constants.OperationTypeCopyFile, fileToReplace);
+                logger.Log(Constants.FileCopied, isError: false, StreamWriter, fileName);
             }
         }
         foreach (string file in Directory.GetFiles(copiedDir))
@@ -57,8 +57,8 @@ public class Engine
 
             if (!File.Exists(origDir + "\\" + fileName))
             {
-                tryOperation(file, secondFile: null, "DeleteFile");
-                logger.Log(Constants.FileDeleted, fileName, isError: false, _StreamWriter);
+                TryOperation(file, Constants.OperationTypeDeleteFile);
+                logger.Log(Constants.FileDeleted, isError: false, StreamWriter, fileName);
             }
         }
         foreach (string file in Directory.GetDirectories(copiedDir))
@@ -67,8 +67,8 @@ public class Engine
 
             if (!Directory.Exists(origDir + "\\" + dirName))
             {
-                tryOperation(file, secondFile: null, Constants.OperationTypeDeleteDirectory);
-                logger.Log(Constants.DirectoryDeleted, dirName, isError: false, _StreamWriter);
+                TryOperation(file, Constants.OperationTypeDeleteDirectory);
+                logger.Log(Constants.DirectoryDeleted, isError: false, StreamWriter, dirName);
             }
         }
         foreach (string s in Directory.GetDirectories(origDir))
@@ -76,7 +76,7 @@ public class Engine
             SynchronizeDirectories(s, copiedDir + "\\" + Path.GetFileName(s));
         }
     }
-    void tryOperation(string firstFile, string secondFile, string operationType)
+    void TryOperation(string firstFile, string operationType, string secondFile = null)
     {
         try
         {
@@ -100,23 +100,23 @@ public class Engine
             SafeExit(ex.Message, isError: true);
         }
     }
-    public void waitForNextSynchronization(int interval) //(не)работающее закрытие кнопкой
+    public void WaitForNextSynchronization() //(не)работающее закрытие кнопкой
     {
         Task taskForCancelling = Task.Factory.StartNew(() =>
         {
             if (Console.ReadKey(true).Key == Constants.ButtonForCancel)
             {
-                _StreamWriter.Close();
+                StreamWriter.Close();
                 Environment.Exit(0);
             }
         }, TaskCreationOptions.AttachedToParent);
-        Thread.Sleep(TimeSpan.FromSeconds(interval));
+        Thread.Sleep(TimeSpan.FromSeconds(Interval));
     }
     public ValidationStatus Validate(string[] args)
     {
         LogPath = args[Constants.LogPathIndexInParameters];
-        _StreamWriter = File.AppendText(LogPath + "\\" + Constants.LogFileName);
-        logger.EntryLog(_StreamWriter);
+        StreamWriter = File.AppendText(LogPath + "\\" + Constants.LogFileName);
+        logger.EntryLog(StreamWriter);
 
         if (args.Length != Constants.NumberOfArguments)
         {
@@ -126,15 +126,14 @@ public class Engine
         OriginalDirectoryPath = args[Constants.OriginalDirectoryPathIndexInParameters];
         CopiedDirectoryPath = args[Constants.CopiedDirectoryPathIndexInParameters];
 
-        int interval;
-        int.TryParse(args[Constants.IntervalIndexInParameters], out interval);
+        int.TryParse(args[Constants.IntervalIndexInParameters], out int interval);
         if (interval == 0)
         {
             return ValidationStatus.InvalidInterval;
         }
         else
         {
-            Interval = interval;
+            this.Interval = interval;
         }
 
         if (!Directory.Exists(OriginalDirectoryPath))
@@ -177,11 +176,10 @@ public class Engine
     }
     void SafeExit(string message, bool isError)
     {
-        logger.Log(message, isError, _StreamWriter);
-        _StreamWriter.Close();
+        logger.Log(message, isError, StreamWriter);
+        StreamWriter.Close();
         Console.WriteLine("Press any key to exit");
         Console.ReadKey();
         Environment.Exit(-1);
     }
 }
-

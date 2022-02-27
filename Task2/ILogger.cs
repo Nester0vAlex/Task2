@@ -8,8 +8,5 @@ public interface ILogger
 
     void EntryLog(StreamWriter streamWriter);
 
-    void Log(string logMessage, string fileName, bool isError, StreamWriter streamWriter);
-
-    void Log(string logMessage, bool isError, StreamWriter streamWriter);
+    void Log(string logMessage, bool isError, StreamWriter streamWriter, string fileName = "");
 }
-

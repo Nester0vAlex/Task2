@@ -14,7 +14,7 @@ if (validationResult == ValidationStatus.Success)
     {
         engine.StartSynchronization();
 
-        engine.waitForNextSynchronization(engine.Interval);
+        engine.WaitForNextSynchronization();
     }
 }
 else

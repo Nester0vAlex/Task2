@@ -22,32 +22,17 @@ public class Logger : ILogger
         streamWriter.WriteLine($"--------------------------------------------------------------");
     }
 
-    public void Log(string logMessage, string fileName, bool isError, StreamWriter streamWriter)
+    public void Log(string logMessage, bool isError, StreamWriter streamWriter, string fileName = "")
     {
         streamWriter.WriteLine($"\r\nLog Entry: {DateTime.Now.ToLongTimeString()}");
         streamWriter.WriteLine($"{logMessage}: {fileName}");
         if (isError)
         {
-            WriteError($"{logMessage}: {fileName}");
+            WriteError($"{logMessage} {fileName}");
         }
         else
         {
-            WriteMessage($"{logMessage}: {fileName}");
+            WriteMessage($"{logMessage} {fileName}");
         }
-    }
-
-    public void Log(string logMessage, bool isError, StreamWriter streamWriter)
-    {
-        streamWriter.WriteLine($"\r\nLog Entry: {DateTime.Now.ToLongTimeString()}");
-        streamWriter.WriteLine(logMessage);
-        if (isError)
-        {
-            WriteError(logMessage);
-        }
-        else
-        {
-            WriteMessage(logMessage);
-        }
-        WriteMessage(Constants.MessageWithSyntaxHint);
     }
 }
