@@ -2,7 +2,7 @@
   "profiles": {
     "Task2": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\TEST\\1 D:\\TEST\\2 logs 8"
+      "commandLineArgs": "D:\\TEST\\1 D:\\TEST\\2 logs 15"
     }
   }
 }

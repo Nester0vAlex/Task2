@@ -15,7 +15,7 @@ public class Engine
     private StreamWriter StreamWriter { get; set; }
     private string OriginalDirectoryPath { get; set; }
     private string CopiedDirectoryPath { get; set; }
-    private string LogPath { get; set; }
+    private string LogDirectoryPath { get; set; }
     private int Interval { get; set; }
 
     public Engine(ILogger logger)
@@ -114,8 +114,14 @@ public class Engine
     }
     public ValidationStatus Validate(string[] args)
     {
-        LogPath = args[Constants.LogPathIndexInParameters];
-        StreamWriter = File.AppendText(LogPath + "\\" + Constants.LogFileName);
+        OriginalDirectoryPath = args[Constants.OriginalDirectoryPathIndexInParameters];
+        CopiedDirectoryPath = args[Constants.CopiedDirectoryPathIndexInParameters];
+        LogDirectoryPath = args[Constants.LogDirectoryPathIndexInParameters];
+        if (!Directory.Exists(LogDirectoryPath))
+        {
+            Directory.CreateDirectory(LogDirectoryPath);
+        }
+        StreamWriter = File.AppendText(LogDirectoryPath + "\\" + Constants.LogFileName);
         logger.EntryLog(StreamWriter);
 
         if (args.Length != Constants.NumberOfArguments)
@@ -144,11 +150,6 @@ public class Engine
         if (OriginalDirectoryPath == CopiedDirectoryPath)
         {
             return ValidationStatus.OriginalAndCopiedDirectoriesAreSame;
-        }
-
-        if (!Directory.Exists(LogPath))
-        {
-            Directory.CreateDirectory(LogPath);
         }
 
         return ValidationStatus.Success;

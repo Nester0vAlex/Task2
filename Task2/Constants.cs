@@ -4,7 +4,7 @@ public static class Constants
 {
     public const int OriginalDirectoryPathIndexInParameters = 0;
     public const int CopiedDirectoryPathIndexInParameters = 1;
-    public const int LogPathIndexInParameters = 2;
+    public const int LogDirectoryPathIndexInParameters = 2;
     public const int IntervalIndexInParameters = 3;
     public const int NumberOfArguments = 4;
 
