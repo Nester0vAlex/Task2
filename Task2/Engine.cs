@@ -114,8 +114,15 @@ public class Engine
     }
     public ValidationStatus Validate(string[] args)
     {
-        OriginalDirectoryPath = args[Constants.OriginalDirectoryPathIndexInParameters];
-        CopiedDirectoryPath = args[Constants.CopiedDirectoryPathIndexInParameters];
+        if (args.Length != Constants.NumberOfArguments)
+        {
+            Console.WriteLine(Constants.ErrorMessageInvalidNumberOfArguments);
+            Console.WriteLine(Constants.MessageWithSyntaxHint);
+            Console.WriteLine(Constants.ExitMessage);
+            Console.ReadKey();
+            Environment.Exit(-1);
+        }
+
         LogDirectoryPath = args[Constants.LogDirectoryPathIndexInParameters];
         if (!Directory.Exists(LogDirectoryPath))
         {
@@ -123,11 +130,6 @@ public class Engine
         }
         StreamWriter = File.AppendText(LogDirectoryPath + "\\" + Constants.LogFileName);
         logger.EntryLog(StreamWriter);
-
-        if (args.Length != Constants.NumberOfArguments)
-        {
-            return ValidationStatus.InvalidNumberOfArguments;
-        }
 
         OriginalDirectoryPath = args[Constants.OriginalDirectoryPathIndexInParameters];
         CopiedDirectoryPath = args[Constants.CopiedDirectoryPathIndexInParameters];
@@ -179,7 +181,7 @@ public class Engine
     {
         logger.Log(message, isError, StreamWriter);
         StreamWriter.Close();
-        Console.WriteLine("Press any key to exit");
+        Console.WriteLine(Constants.ExitMessage);
         Console.ReadKey();
         Environment.Exit(-1);
     }

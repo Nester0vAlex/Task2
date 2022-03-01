@@ -8,6 +8,8 @@ public static class Constants
     public const int IntervalIndexInParameters = 3;
     public const int NumberOfArguments = 4;
 
+    public const string ExitMessage = "Press any key to exit";
+
     public const string OperationTypeDeleteDirectory = "DeleteDirectory";
     public const string OperationTypeDeleteFile = "DeleteFile";
     public const string OperationTypeCopyFile = "CopyFile";
